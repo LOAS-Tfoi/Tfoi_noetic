@@ -36,7 +36,7 @@
 ## 사용 방법
 
 1. `catkin_ws` 디렉토리에 존재하는 모든 폴더 및 파일을 삭제합니다.
-2. `catkin_ws/src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다.
+2. `catkin_ws에 /src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다.
 
 ```bash
 git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
