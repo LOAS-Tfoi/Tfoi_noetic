@@ -1,0 +1,16 @@
+<!---->
+
+<launch> 
+
+   <include file="$(find inudev_camera)/launch/inudev_ros_nodelet_multiple.launch"/>
+
+  <include file="$(find yhs_can_control)/launch/yhs_can_control_bringup_carto.launch"/>
+
+  <arg name="map_file" default="$(find yhs_nav)/map/test1127.yaml"/>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <include file="$(find yhs_nav)/launch/teb_move_base.launch"/>
+
+
+</launch>

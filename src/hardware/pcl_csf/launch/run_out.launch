@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="pcl_csf" type="pcl_csf_out_node" name="pcl_csf_node" output="screen"/>
+</launch>
