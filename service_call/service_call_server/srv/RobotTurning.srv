@@ -1,0 +1,8 @@
+# 서비스 요청
+string command  # 명령어 (IMMEDIATE_360, DELAYED_30, STOP, STOP_SERVICE)
+float64 turning_time  # 회전 시간 (초)
+float64 angular_vel
+
+---
+# 서비스 응답
+bool success  # 서비스 성공 여부

@@ -1,0 +1,9 @@
+<launch>
+
+        <node name="service_call_client_node" pkg="service_call_client" type="service_call_client_node" output="screen" >
+   
+        </node>
+
+
+</launch>
+
