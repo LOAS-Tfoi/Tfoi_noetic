@@ -36,12 +36,21 @@
 ## 사용 방법
 
 1. `catkin_ws` 디렉토리에 존재하는 모든 폴더 및 파일을 삭제합니다.
-2. `catkin_ws/src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다:
+2. `catkin_ws/src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다.
 
 ```bash
 git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
+```
 
 ### 웹 데이터 퍼블리셔 Topic list
 ```bash
-/tfoi_voltage          Tfoi  배터리 
+/tfoi_voltage          Tfoi  배터리 전압[V]          Type : std_msgs::Float32
+/tfoi_current          Tfoi  배터리 전류[A]          Type : std_msgs::Float32
+/tfoi_capacity         Tfoi  배터리 용량[C]          Type : std_msgs::Float32
+/tfoi_battery          Tfoi  배터리 상태[%]          Type : std_msgs::UInt8
+/tfoi_temperature      Tfoi  배터리 온도             Type : std_msgs::Float32
+/tfoi_over_voltage     Tfoi  배터리 과전압 플래그      Type : std_msgs::Bool
+/tfoi_charge_flag      Tfoi  배터리 충전 플래그        Type : std_msgs::Bool
+/tfoi_distance         Tfoi  Tfoi 이동 거리          Type : std_msgs::Float32  (테스트 및 검증 필요)
+
 
