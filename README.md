@@ -40,8 +40,7 @@
 ```bash
 git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
 ```
-3. /src 디렉토리에서 아래 명령어를 수행합니다
-
+3. /catkin_ws 디렉토리에서 아래 명령어를 수행합니다
 ```bash
 catkin_make_isolated
 ```
