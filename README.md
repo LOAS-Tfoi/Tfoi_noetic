@@ -1,7 +1,7 @@
 # Tfoi_noetic
 
 
-![Tfoi Logo](https://github.com/LOAS-Tfoi/Tfoi_noetic/assets/117344855/512ec3d4-b469-47d6-943e-b6222e08e2ad){:width="200px" height="100px"}
+![Tfoi Logo](https://github.com/LOAS-Tfoi/Tfoi_noetic/assets/117344855/512ec3d4-b469-47d6-943e-b6222e08e2ad){:width="50px" height="25px"}
 
 
 **버전: 2024.06.11**
