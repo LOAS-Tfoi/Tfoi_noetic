@@ -50,7 +50,9 @@ catkin_make_isolated
 source ~/catkin_ws/devel_isolated/setup.bash
 ```
 5. 네비게이션 실행
+```bash
 roslaunch yhs_nav navigation_2d.launch
+```
 
 ### 웹 데이터 퍼블리셔 Topic list
 ```bash
