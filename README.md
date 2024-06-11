@@ -46,7 +46,7 @@ git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
 catkin_make_isolated
 ```
 4. cd 입력 후  해당 경로로 source 
-   ```bash
+```bash
 source ~/catkin_ws/devel_isolated/setup.bash
 ```
 5. 네비게이션 실행
