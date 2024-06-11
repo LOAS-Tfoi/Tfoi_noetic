@@ -40,3 +40,8 @@
 
 ```bash
 git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
+
+### 웹 데이터 퍼블리셔 Topic list
+'''bash
+/tfoi_voltage          Tfoi  배터리 
+
