@@ -37,10 +37,20 @@
 
 1. `catkin_ws` 디렉토리에 존재하는 모든 폴더 및 파일을 삭제합니다.
 2. `catkin_ws에 /src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다.
-
 ```bash
 git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
 ```
+3. /src 디렉토리에서 아래 명령어를 수행합니다
+
+```bash
+catkin_make_isolated
+```
+4. cd 입력 후  해당 경로로 source 
+   ```bash
+source ~/catkin_ws/devel_isolated/setup.bash
+```
+5. 네비게이션 실행
+roslaunch yhs_nav navigation_2d.launch
 
 ### 웹 데이터 퍼블리셔 Topic list
 ```bash
