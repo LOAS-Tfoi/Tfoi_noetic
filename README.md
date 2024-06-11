@@ -17,4 +17,6 @@ git checkout md_develop
 ```
 
 2-1. 브랜치가 제대로 체크아웃되었는지 확인
+```bash
 git status
+```
