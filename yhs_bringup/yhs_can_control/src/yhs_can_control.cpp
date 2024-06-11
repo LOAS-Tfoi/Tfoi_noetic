@@ -168,7 +168,7 @@ void CanControl::cmdCallBack(const geometry_msgs::Twist msg)
 	short linear = msg.linear.x * 1000;
 	short angular = msg.angular.z / 3.14 * 180 * 100;
 	short slipangle = 0;
-	int gear = 6;
+	int gear = 3;
 	static unsigned char count = 0;
 
 	cmd_mutex_.lock();
@@ -849,17 +849,17 @@ void CanControl::recvData()
                                                 
 
 
-						// scan.ranges[20] = ((double)ulmsg.front_left / 1000 > 0.5 || ulmsg.front_left == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.front_left / 1000 + 0.35;
-						// scan.ranges[15] = ((double)ulmsg.front_right / 1000 > 0.5 || ulmsg.front_right == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.front_right / 1000 + 0.35;
+						scan.ranges[20] = ((double)ulmsg.front_left / 1000 > 0.5 || ulmsg.front_left == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.front_left / 1000 + 0.35;
+						scan.ranges[15] = ((double)ulmsg.front_right / 1000 > 0.5 || ulmsg.front_right == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.front_right / 1000 + 0.35;
 
-						// scan.ranges[34] = ((double)ulmsg.rear_left / 1000 > 0.5 || ulmsg.rear_left == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.rear_left / 1000 + 0.35;
-            			// 		scan.ranges[3] = ((double)ulmsg.rear_right / 1000 > 0.5 || ulmsg.rear_right == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.rear_right / 1000 + 0.35;
+						scan.ranges[34] = ((double)ulmsg.rear_left / 1000 > 0.5 || ulmsg.rear_left == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.rear_left / 1000 + 0.35;
+            					scan.ranges[3] = ((double)ulmsg.rear_right / 1000 > 0.5 || ulmsg.rear_right == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.rear_right / 1000 + 0.35;
 
-						// scan.ranges[11] = ((double)ulmsg.right_front / 1000 > 0.5 || ulmsg.right_front == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.right_front / 1000 + 0.35;
-           		 		// 	scan.ranges[7] = ((double)ulmsg.right_rear / 1000 > 0.5 || ulmsg.right_rear == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.right_rear / 1000 + 0.35;
+						scan.ranges[11] = ((double)ulmsg.right_front / 1000 > 0.5 || ulmsg.right_front == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.right_front / 1000 + 0.35;
+           		 			scan.ranges[7] = ((double)ulmsg.right_rear / 1000 > 0.5 || ulmsg.right_rear == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.right_rear / 1000 + 0.35;
 
-						// scan.ranges[30] = ((double)ulmsg.left_rear / 1000 > 0.5 || ulmsg.left_rear == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.left_rear / 1000 + 0.35;
-            			// 		scan.ranges[24] = ((double)ulmsg.left_front / 1000 > 0.5 || ulmsg.left_front == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.left_front / 1000 + 0.35;
+						scan.ranges[30] = ((double)ulmsg.left_rear / 1000 > 0.5 || ulmsg.left_rear == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.left_rear / 1000 + 0.35;
+            					scan.ranges[24] = ((double)ulmsg.left_front / 1000 > 0.5 || ulmsg.left_front == 0) ? std::numeric_limits<float>::infinity() : (double)ulmsg.left_front / 1000 + 0.35;
                                                                                                                                                                                        
                                               
 						scan_pub_.publish(scan);
@@ -886,7 +886,7 @@ void CanControl::odomPub(float linear,float angular)
 	static double th = 0.0;
 
 	static double lastYaw = 0;
-
+	
 	static tf::TransformBroadcaster odom_broadcaster;
 
 	static ros::Time last_time = ros::Time::now();
@@ -973,7 +973,7 @@ void CanControl::sendData()
 			short linear = 0;
 			short angular = 0;
 			short slipangle = 0;
-			int gear = 6;
+			int gear = 	6;
 			static unsigned char count = 0;
 
 			memset(sendData_u_vel_,0,8);
@@ -1011,7 +1011,7 @@ void CanControl::sendData()
 
 			sendData_u_vel_[7] = sendData_u_vel_[0] ^ sendData_u_vel_[1] ^ sendData_u_vel_[2] ^ sendData_u_vel_[3] ^ sendData_u_vel_[4] ^ sendData_u_vel_[5] ^ sendData_u_vel_[6];
 
-			send_frames_[0].can_id = 0x98C4D1D0;
+			send_frames_[0].can_id = 0x18C4D1D0;
 			send_frames_[0].can_dlc = 8;
 
 			memcpy(send_frames_[0].data, sendData_u_vel_, 8);
@@ -1060,7 +1060,7 @@ void CanControl::run()
 	linear_pub_ = nh_.advertise<std_msgs::Float32>("linear", 5);
 
 	ultrasonic_pub_ = nh_.advertise<yhs_can_msgs::ultrasonic>("ultrasonic",5);
-	scan_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan5", 5); //scan3
+	scan_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan3", 5);
 
 	//打开设备
 	dev_handler_ = socket(PF_CAN, SOCK_RAW, CAN_RAW);

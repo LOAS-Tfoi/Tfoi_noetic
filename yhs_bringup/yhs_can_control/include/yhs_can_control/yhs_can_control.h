@@ -98,11 +98,13 @@ private:
 	unsigned char sendData_u_io_[8] = {0};
 	unsigned char sendData_u_vel_[8] = {0};
 
+	// MD motor
+	double md_wheel_size;
+	double fw_wheel_size;
 	
 	int dev_handler_;
 	can_frame send_frames_[2];
 	can_frame recv_frames_[1];
-
 
 	void io_cmdCallBack(const yhs_can_msgs::io_cmd msg);
 	void ctrl_cmdCallBack(const yhs_can_msgs::ctrl_cmd msg);

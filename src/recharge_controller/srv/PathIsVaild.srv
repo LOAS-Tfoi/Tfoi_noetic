@@ -1,7 +1,0 @@
-std_msgs/Header header
-
-nav_msgs/Path checked_path
-
----
-
-int8 result

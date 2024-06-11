@@ -9,7 +9,7 @@
     </node>
     
     <include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/> 
-    <include file="$(find serial_imu)/launch/imu_msg.launch"/>           
+    <include file="$(find hipnuc_imu)/launch/imu.launch"/>           
     <include file="$(find robot_pose_ekf)/launch/navigation.launch"/>    
     <include file="$(find yocs_velocity_smoother)/launch/standalone.launch"/>
 
