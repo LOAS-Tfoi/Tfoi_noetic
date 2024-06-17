@@ -9,7 +9,7 @@
   <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find yhs_nav)/rviz/fw01_2.rviz"/> -->
   <include file="$(find yhs_can_control)/launch/yhs_can_control_bringup.launch"/>
   
-  <arg name="map_file" default="$(find yhs_nav)/map/map0608.yaml"/>
+  <arg name="map_file" default="$(find yhs_nav)/map/map0613.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <arg name="initial_pose_x" default="0.0"/>

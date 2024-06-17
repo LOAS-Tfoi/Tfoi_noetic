@@ -436,7 +436,7 @@ protected:
   geometry_msgs::PoseStamped getForwardViewDistance(const double & lookahead_dist, const std::vector<geometry_msgs::PoseStamped>& transformed_plan);
 
   // Tfoi Algorithm Function
-  bool rotateAtTarget(const geometry_msgs::PoseStamped & carrot_pose);
+  bool rotateAtTarget(const double & goal_yaw_radian);
   bool rotateForDetection(const geometry_msgs::PoseStamped & robot_pose_geo, double & goal_radian);
   bool rotateAndStopAtNearTarget(const geometry_msgs::PoseStamped & robot_pose_geo, double & goal_radian);
   bool shouldMoveBackward( const std::vector<geometry_msgs::PoseStamped>& transformed_plan_local);
@@ -594,6 +594,9 @@ private:
     
   // flags
   bool initialized_; //!< Keeps track about the correct initialization of this class
+  bool service_flag;
+  int service_flag_cnt;
+  int service_rot_cnt;
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -37,7 +37,7 @@
 #define ROS_DEBUG_ERROR_01 0 // teb_path.pose TF 변환 에러
 
 
-#define TFOI_2020_VER "0.93d"
+#define TFOI_2020_VER "fw97b"
 
 
 #include <teb_local_planner/teb_local_planner_ros.h>
@@ -328,6 +328,7 @@ void TebLocalPlannerROS::multiGoalCallBack(const move_base_msgs::MoveBaseActionG
   multi_goal_y = msg->goal.target_pose.pose.position.y;
   multi_goal_yaw = tf2::getYaw(msg->goal.target_pose.pose.orientation);  
 }
+/********************************************* Algorithm Function ***************************************************************/
 
 double TebLocalPlannerROS::goalRadianCaculate(const geometry_msgs::PoseStamped &robot_pose_geo, double & angle_to_heading, double x, double y)
 {
@@ -351,115 +352,6 @@ double TebLocalPlannerROS::goalRadianCaculate(const geometry_msgs::PoseStamped &
 
     return angleDifference;
 }
-
-// bool TebLocalPlannerROS::getPath(std::vector<geometry_msgs::PoseStamped>& get_path) 
-// {
-//     get_path.clear();
-
-//     nav_msgs::Path teb_path;
-//     planner_->getPath(teb_path);  
-
-//     for (const auto& pose : teb_path.poses)
-//     {
-//         geometry_msgs::PoseStamped pose_copy = pose;
-//         pose_copy.header.frame_id = "map";
-//         get_path.push_back(pose_copy);
-//     }
-
-//     return true;
-// }
-
-
-/********************************************* Algorithm Function ***************************************************************/
-// void TebLocalPlannerROS::adjustPIDConstants(double & distance, double & kp, double & ki, double & kd) {
-
-//     // 거리가 가까워질수록 PID 상수를 낮춰 부드러운 감속을 유도
-
-//     if (distance < 0.7) {
-//         kp = 0.2;  // 적절한 값으로 조정
-//         ki = 0.05; // 적절한 값으로 조정
-//         kd = 0.1;  // 적절한 값으로 조정
-//     }
-//     else {
-//         kp = 0.5; // 기본 상수
-//         ki = 0.1; // 기본 상수
-//         kd = 0.3; // 기본 상수
-//     }
-// }
-// double TebLocalPlannerROS::SmoothDecelerationPIDControl(double current_velocity, double target_angle, double current_angle,double distance_to_target)
-// {
-
-//     double target_value = target_angle;
-//     double current_value = current_angle;
-//     double distance = distance_to_target;
-
-//     double kp = 0.5; // 비례 상수
-//     double ki = 0.1; // 적분 상수
-//     double kd = 0.3; // 미분 상수
-
-//     double target_linear_vel = 1.0; // 목표 선속도
-//     double current_linear_vel = current_velocity;
-
-//     // PID 제어 상수 설정
-
-//     double dt = 0.1; // 제어 주기
-
-//     double max_output = 1.0; // 최대 출력값
-//     double min_output = -1.0; // 최소 출력값
-//     double max_integrator = 10.0; // 적분값 최대값
-//     double min_integrator = -10.0; // 적분값 최소값
-
-//      adjustPIDConstants(distance, kp, ki, kd);
-
-//     static double error_sum = 0;
-//     static double last_error = 0;
-
-//     // 에러 계산
-//     double error = target_value - current_value;
-
-//     // 비례 제어
-//     double p_term = kp * error;
-
-//     // 적분 제어
-//     error_sum += error * dt;
-//     double i_term = ki * error_sum;
-
-//     // 미분 제어
-//     double derivative = (error - last_error) / dt;
-//     double d_term = kd * derivative;
-
-//     // PID 제어량 계산
-//     double output = p_term + i_term + d_term;
-
-//     // 출력 범위 제한
-//     output = std::max(std::min(output, max_output), min_output);
-
-//     // 적분 텀 제한
-//     error_sum = std::max(std::min(error_sum, max_integrator), min_integrator);
-
-//     // 마지막 에러 업데이트
-//     last_error = error;
-
-//     return output;
-// }
-
-
-// // 회전 속도 보정
-// double TebLocalPlannerROS::adjustAngularVelocity(double max_vel_theta,double yaw_diff, double reduction_threshold, double min_vel_scale)
-// {  
-//   double factor = fabs(yaw_diff) / M_PI;
-
-//   // 목표각도게 가까울수록 점진적인 감속 
-//   if(factor < reduction_threshold)
-//   {
-//     factor = reduction_threshold + (factor / reduction_threshold) * (1.0 - reduction_threshold);
-//   }
-
-//   double min_vel_theta = max_vel_theta * min_vel_scale;
-//   double angular_velocity = max_vel_theta * factor;
-//   return std::max(min_vel_theta, angular_velocity); // 최소 속도로 보정
-// }
-
 
 //전방주시 거리점 가저오기, lookahead_dist와 transformed_plan을 기반으로 전방 주시 거리 계산 
 geometry_msgs::PoseStamped TebLocalPlannerROS::getForwardViewDistance(
@@ -501,59 +393,52 @@ geometry_msgs::PoseStamped TebLocalPlannerROS::getForwardViewDistance(
 }
 
 // 목표점에 도달하여 제자리 회전할 것인지 판단
-bool TebLocalPlannerROS::rotateAtTarget(const geometry_msgs::PoseStamped &robot_pose_geo)
+bool TebLocalPlannerROS::rotateAtTarget(const double &goal_yaw_radian)
 {
-  double dist_to_goal =  std::hypot(robot_pose_geo.pose.position.x, robot_pose_geo.pose.position.y);
-
-  //ROS_WARN("dist_to_goal: %f, xy_tolerance: %f\n", dist_to_goal, cfg_.goal_tolerance.xy_goal_tolerance);
+  //double dist_to_goal =  std::hypot(robot_pose_geo.pose.position.x, robot_pose_geo.pose.position.y);
+  geometry_msgs::PoseStamped pose_in, pose_goal;
+  pose_in = global_plan_.back();
+  pose_in.header.frame_id = "map";
+  pose_in.header.stamp = ros::Time();
+  tf_->transform(pose_in, pose_goal, "base_link");                  // 입력 포즈, 변환된 포즈 저장할 변수, 변환할 대상 프레임
  
-  if(dist_to_goal < cfg_.goal_tolerance.xy_goal_tolerance)  
+  double robot_to_goal = std::hypot(pose_goal.pose.position.x, pose_goal.pose.position.y);
+    ROS_WARN("robot_to_goal : %f, xy_tolerance: %f\n", robot_to_goal , cfg_.goal_tolerance.xy_goal_tolerance);
+  if(robot_to_goal < cfg_.goal_tolerance.xy_goal_tolerance)  
   {
     //ROS_INFO("dist_to_goal: %f, xy_tolerance: %f\n ---\n", dist_to_goal, cfg_.goal_tolerance.xy_goal_tolerance);
     //cfg_.goal_tolerance.xy_goal_tolerance = goal_dist_tol_temp_ + 0.2;
-    return true;
+    if(goal_yaw_radian <  cfg_.goal_tolerance.yaw_goal_tolerance + 0.05)
+    { 
+      return false;
+    }
+    return true;     
   }
-  return false;
+  return false;   
 }
 
 // 탐색 도중 정지하여 방향 조절이 필요한지 판단
 bool TebLocalPlannerROS::rotateForDetection(const geometry_msgs::PoseStamped & robot_pose_geo, double &goal_radian)
 {
-  //   double dist_to_goal = std::hypot(carrot_pose.pose.position.x, carrot_pose.pose.position.y);
-  // angle_to_path = std::atan2(carrot_pose.pose.position.y, carrot_pose.pose.position.x);
-  // return (fabs(angle_to_path) > rotate_angular_ /*&& dist_to_goal > 0.25*/);
-  double rotate_angular_ = 0.2;  
-  //angle_to_path =  tf2::getYaw(pose_goal.pose.orientation);
-  //double dist_to_goal = std::hypot(carrot_pose.pose.position.x, carrot_pose.pose.position.y);
 
-  geometry_msgs::PoseStamped pose_in, pose_goal;
-  pose_in = global_plan_.back();//teb_path.poses.back();
-  pose_in.header.frame_id = "map";
-  pose_in.header.stamp = ros::Time();
-  tf_->transform(pose_in, pose_goal, "base_link");                  // 입력 포즈, 변환된 포즈 저장할 변수, 변환할 대상 프레임
+  double rotate_angular_ = 0.35; // 0.2  
    
-   return (fabs(goal_radian) > rotate_angular_); //cfg_.goal_tolerance.yaw_goal_tolerance);  
+   return (fabs(goal_radian) > rotate_angular_); //cfg_.goal_tolerance.yaw_goal_tolerance); 
 }
 
 // 목표점 접근 시 정지 및 방향 조정 필요 여부 판단
 bool TebLocalPlannerROS::rotateAndStopAtNearTarget(const geometry_msgs::PoseStamped & robot_pose_geo, double & goal_radian)
 {
-  double goal_near_rotate_angular_ = 0.2;
-  
-  geometry_msgs::PoseStamped pose_in, pose_goal;
-  pose_in = global_plan_.back();//teb_path.poses.back();
-  pose_in.header.frame_id = "map";
-  pose_in.header.stamp = ros::Time();
-  tf_->transform(pose_in, pose_goal, "base_link");                  // 입력 포즈, 변환된 포즈 저장할 변수, 변환할 대상 프레임
-  
+  double goal_near_rotate_angular_ = 0.35;  
+
   if(fabs(goal_radian) > goal_near_rotate_angular_)
   {
-    goal_near_rotate_angular_ = 0.2;
+    goal_near_rotate_angular_ = 0.35; // 0.2
     return true;
   }
   else
   {
-    goal_near_rotate_angular_ = 0.4;
+    goal_near_rotate_angular_ = 0.65; // 0.4 
   }
   return false;
 }
@@ -872,7 +757,7 @@ uint32_t TebLocalPlannerROS::computeVelocityCommands(const geometry_msgs::PoseSt
         || cfg_.goal_tolerance.free_goal_vel))
   {
     goal_reached_ = true;
-    return mbf_msgs::ExePathResult::SUCCESS;
+    return mbf_msgs::ExePathResult::SUCCESS;    
   }
 
   // check if we should enter any backup mode and apply settings
@@ -889,12 +774,8 @@ uint32_t TebLocalPlannerROS::computeVelocityCommands(const geometry_msgs::PoseSt
               
   // Get current goal point (last point of the transformed plan)
   robot_goal_.x() = transformed_plan.back().pose.position.x;
-  robot_goal_.y() = transformed_plan.back().pose.position.y;
-  
-  // tf::Stamped<tf::Pose> goal_point;
-  // tf::poseStampedMsgToTF(transformed_plan.back(), goal_point);
-  // robot_goal_.x() = goal_point.getOrigin().getX();
-  // robot_goal_.y() = goal_point.getOrigin().getY();
+  robot_goal_.y() = transformed_plan.back().pose.position.y; 
+
 
   // Overwrite goal orientation if needed
   if (cfg_.trajectory.global_plan_overwrite_orientation)
@@ -1133,15 +1014,14 @@ if (transformed_local_plan.empty()) {
   {
     double delta_x = teb_poses[i].pose.position.x - teb_poses[i-1].pose.position.x; 
     double delta_y = teb_poses[i].pose.position.y - teb_poses[i-1].pose.position.y;
-    double distance = sqrt(delta_x*delta_x + delta_y*delta_y);  
+    double distance = sqrt(delta_x*delta_x + delta_y*delta_y);
+    
 
     if(distance > 0.5) 
-    {
-    #if ROS_DEBUG_TEST_04      
+    {      
       ROS_WARN("two point distance > 0.5 Reset Teb Planner!!!"); 
-    #endif
-  //  teb_num = 15;
-  //  break;
+      teb_num = 15;
+      //break;
     }
     //ROS_INFO(" for pose_goal distance : %f", distance); 
     geometry_msgs::PoseStamped pose = teb_poses[i];
@@ -1171,13 +1051,15 @@ if (transformed_local_plan.empty()) {
     {
       teb_num |= 0x08;
     }
+    ROS_WARN("============= teb_num : %ld =================", teb_num);
+    ROS_WARN("============= teb_pose distance : %f =====================", distance);
   }
 
   //   if(teb_num == 15 /*&& fabs(std::sqrt(dx*dx+dy*dy) > 2)*/ && pose_goal.pose.position.x > 0.01)
   // {
+  //   teb_num = 0;
   //   planner_->clearPlanner(); 
   //   cmd_vel.twist = last_cmd_;
-
   //   ROS_WARN("Reset Teb Planner!!!");
   //   return true;
   // }  
@@ -1260,31 +1142,46 @@ geometry_msgs::PoseStamped carrot_pose = getForwardViewDistance(lookahead_dist, 
 
   double sign;    
   double angle_in;
-  double goal_yaw = goalRadianCaculate(robot_pose_geo, angle_in, multi_goal_x, multi_goal_y);
+  goal_yaw = goalRadianCaculate(robot_pose_geo, angle_in, multi_goal_x, multi_goal_y);
 
   if( shouldMoveBackward(transformed_local_plan) && frontCheckObs(robot_pose_geo) ) { // 뒤로 갈것 인지 판단
     ROS_WARN("check if need go back");
     cmd_vel.twist.linear.x = -0.1;
     cmd_vel.twist.angular.z = 0;
   }  
-  else if (rotateAtTarget(robot_pose_geo)) { // 로봇과 전방시점 거리가 설정 거리보다 작아 제자리에서 회전하며 방향 조정
-    //double angle_to_goal = tf::getYaw(pose_goal.pose.orientation);
-    //rotateToHeading(cmd_vel.twist.linear.x, cmd_vel.twist.angular.z, angle_to_heading);
-    //double sign = angle_to_goal > 0.0 ? 1.0 : -1.0;
-    if (goal_yaw > 0.0)
-      sign = 1.0;
-    else 
-      sign = -1.0;
-    cmd_vel.twist.linear.x = 0.0;
-    cmd_vel.twist.angular.z = sign * 0.35;
-    if(goal_yaw < cfg_.goal_tolerance.yaw_goal_tolerance){
-      cmd_vel.twist.angular.z = 0;
-    }
+  else if (rotateAtTarget(goal_yaw)) { // 로봇과 전방시점 거리가 설정 거리보다 작아 제자리에서 회전하며 방향 조정
+    // ROS_ERROR("==== Robot front view distance is smaller than set distance, rotating in place and adjusting orientation ====");
+    ROS_ERROR("==================rotateAtTarget : %d =====================",rotateAtTarget(goal_yaw));
+    if (goal_yaw > M_PI)
+        goal_yaw -= 2 * M_PI;
+    else if (goal_yaw < -M_PI)
+        goal_yaw += 2 * M_PI;
+    
+    if (fabs(goal_yaw) > 0.01) { // Adjust this threshold according to your requirement
+        double sign = (goal_yaw > 0.0) ? 1.0 : -1.0;
+        cmd_vel.twist.linear.x = 0.0;
+        cmd_vel.twist.angular.z = sign * 0.35;
+    } else {
+        // If angle difference is very small, robot is already facing towards the target.
+        // No need for further rotation.
+        cmd_vel.twist.linear.x = 0.0;
+        cmd_vel.twist.angular.z = 0.0;
+    }    
+    // if (goal_yaw > 0.0)
+    //   sign = 1.0;
+    // else 
+    //   sign = -1.0;
+    // cmd_vel.twist.linear.x = 0.0;
+    // cmd_vel.twist.angular.z = sign * 0.35;
+    // if(goal_yaw < cfg_.goal_tolerance.yaw_goal_tolerance){
+    //   cmd_vel.twist.angular.z = 0;
+    // }
   }   
-  else if ( (rotateForDetection(robot_pose_geo, goal_yaw) && frontCheckObs(robot_pose_geo) ) ||     //로봇 현재좌표와 전방시거리점의 tan각도가 설정각도보다 크면 정지하여 회전시켜 각도를 조정한다 로봇 현재위치와 전방시점 협각도가 0.2보다 크고 전방에 장애물 
-  ( dist_to_goal_final < 1.5 && rotateAndStopAtNearTarget(robot_pose_geo, goal_yaw) ) ) {  // carrot_pose
-    //double angle_to_goal = tf::getYaw(pose_goal.pose.orientation);
-    //  double angleDifference = angle_to_heading - tf::getYaw(robot_pose_geo.pose.orientation);
+  else if ( (rotateForDetection(robot_pose_geo, goal_yaw) && frontCheckObs(robot_pose_geo) ) ||     //로봇 현재좌표와 전방시거리점의 tan각도가 혀용각도 보다 크면 정지하여 회전시켜 각도를 조정한다 로봇 현재위치와 전방시점 협각도가 0.2보다 크고 전방에 장애물 
+  ( dist_to_goal_final < 1.5 && rotateAndStopAtNearTarget(robot_pose_geo, goal_yaw) ) ) {  
+    // ROS_ERROR("==== If the tan angle between the robot and the target is greater than the allowable angle, stop and rotate to match the heading ====");
+    ROS_ERROR("rotateForDetection : %d, frontCheckObs : %d, rotateAndStopAtNearTarget : %d", rotateForDetection(robot_pose_geo, goal_yaw), frontCheckObs(robot_pose_geo), rotateAndStopAtNearTarget(robot_pose_geo, goal_yaw));
+    // ROS_ERROR("dist_to_goal_final");
     if (goal_yaw > M_PI)
         goal_yaw -= 2 * M_PI;
     else if (goal_yaw < -M_PI)
@@ -1303,31 +1200,41 @@ geometry_msgs::PoseStamped carrot_pose = getForwardViewDistance(lookahead_dist, 
   }
  //시작점 회전
   else if( std::min( fabs(global_plan_0_yaw - cur_yaw),2.0 * M_PI - fabs(global_plan_0_yaw - cur_yaw)) > 0.4 && need_rotate_) {
-    //double angle_to_path = std::atan2(robot_pose_geo.pose.position.y, robot_pose_geo.pose.position.x);   
-    //double angle_to_goal = tf::getYaw(pose_goal.pose.orientation);
-    if (goal_yaw > 0.0)
-      sign = 1.0;
-    else 
-      sign = -1.0;
+    // ROS_ERROR("Comparing the absolute value minus global_plan_yaw and cur_yaw with the absolute value minus 360 degrees, the smallest value is greater than 0.4, and the start point rotation when needed_rotate_ is flagged");
+    // ROS_ERROR("================================    global_plan_o_yaw : %f ================================ ", global_plan_0_yaw);
+    // ROS_ERROR("================================     cur_yaw : %f          ================================ ", cur_yaw);
+     ROS_ERROR("=================== global_plan_yaw, cur_yaw subtract and min : %f =======================",  std::min( fabs(global_plan_0_yaw - cur_yaw),2.0 * M_PI - fabs(global_plan_0_yaw - cur_yaw)));
+
+    if (goal_yaw > M_PI)
+        goal_yaw -= 2 * M_PI;
+    else if (goal_yaw < -M_PI)
+        goal_yaw += 2 * M_PI;
     
-      cmd_vel.twist.linear.x = 0.0;
-      cmd_vel.twist.angular.z = sign * 0.35; 
-    //}
+    if (fabs(goal_yaw) > 0.01) { // Adjust this threshold according to your requirement
+        double sign = (goal_yaw > 0.0) ? 1.0 : -1.0;
+        cmd_vel.twist.linear.x = 0.0;
+        cmd_vel.twist.angular.z = sign * 0.35;
+    } else {
+        // If angle difference is very small, robot is already facing towards the target.
+        // No need for further rotation.
+        cmd_vel.twist.linear.x = 0.0;
+        cmd_vel.twist.angular.z = 0.0;
+    }
   }            
   else { //곡률감속처리
     //applyConstraints(curvature, local_path, cmd_vel.twist.linear.x, 1.0);
 
-    // 각속도설정
+    //각속도설정
     // double yt = carrot_pose.pose.position.y;
     // double ld_2 = lookahead_dist * lookahead_dist;
     // double dist_to_goal_final = std::hypot(pose_goal.pose.position.x, pose_goal.pose.position.y);
-    // cmd_vel.twist.angular.z = 1.2 * cmd_vel.twist.linear.x / ld_2 * yt;
+    // cmd_vel.twist.angular.z = 2.0 * cmd_vel.twist.linear.x / ld_2 * yt;
     // //Ensure that angular_vel does not exceed user-defined amount
     // cmd_vel.twist.angular.z = clamp(cmd_vel.twist.angular.z, -cfg_.robot.max_vel_theta, cfg_.robot.max_vel_theta);
     // if(dist_to_goal_final <= 1)//dxscpp  로봇이 목표점에서 1m보다 작을 경우 각속도는 종전의 1.5배
     // {
     //   //ROS_INFO("dist_to_goal_final is: %f\n", dist_to_goal_final);
-    //   cmd_vel.twist.angular.z *= 1.5;
+    //   cmd_vel.twist.angular.z *= 3;
     // }
     need_rotate_ = false;    
   }
@@ -1341,7 +1248,7 @@ geometry_msgs::PoseStamped carrot_pose = getForwardViewDistance(lookahead_dist, 
 //      ROS_WARN("Wait reset!");
     }    
   }
-  // 같은 값 나오는 지 확인 
+  // 로봇 기준 Position 좌표 -> 원점(map) 
   #if ROS_DEBUG_TEST_05
   ROS_INFO("robot_pose_geo x : %f  y : %f, yaw : %f", robot_pose_geo.pose.position.x, robot_pose_geo.pose.position.y , tf::getYaw(robot_pose_geo.pose.orientation));
   //ROS_WARN("current_robot_pose x : %f  y : %f, yaw : %f", current_robot_pose.pose.position.x, current_robot_pose.pose.position.y , tf::getYaw(current_robot_pose.pose.orientation));
@@ -1421,6 +1328,7 @@ else
         #endif
 
         goal_reached_ = true;
+        //service_flag_cnt++;
         //flag_distance = false;
         
         return mbf_msgs::ExePathResult::SUCCESS;
@@ -1454,9 +1362,9 @@ else
 
     #if 1
           ROS_ERROR("//===================================================="); 
-          ROS_ERROR("// [Setp #3-1]Tolerance Tolerance GOAL Yaw NG Check #2");
-          ROS_ERROR("//   - Robot to Angle for GOAL : %f ", tf::getYaw(pose_goal.pose.orientation));
-          ROS_ERROR("//   - Robot Current Headding : %f", tf::getYaw(current_robot_pose.pose.orientation));
+          ROS_ERROR("// [Setp #3-1] Tolerance GOAL Yaw NG Check #2");
+          ROS_ERROR("//   - Robot to Angle for GOAL : %f ", tf::getYaw(pose_goal.pose.orientation) * 180/M_PI);
+          ROS_ERROR("//   - Robot Current Headding : %f", tf::getYaw(current_robot_pose.pose.orientation) * 180/M_PI); //current_robot_pose = robot_pose_geo
           ROS_ERROR("//   - goal_yaw_tolerance_goal : %f ", cfg_.goal_tolerance.yaw_goal_tolerance);          
           ROS_ERROR("//   - goal_reached : %d ",  goal_reached_);
           ROS_ERROR("//===================================================="); 
@@ -1548,11 +1456,11 @@ else
     }
 
       ROS_WARN("=================");
-      ROS_WARN("// robot_pose_geo x : %f, y : %f, Yaw : %f", robot_pose_geo.pose.position.x, robot_pose_geo.pose.position.y, tf::getYaw(robot_pose_geo.pose.orientation));
+      ROS_WARN("// robot_pose_geo x : %f, y : %f, Yaw : %f", robot_pose_geo.pose.position.x, robot_pose_geo.pose.position.y, tf::getYaw(robot_pose_geo.pose.orientation) * 180/M_PI);
       ROS_WARN("=================");
   
       ROS_WARN("=================");
-      ROS_WARN("// Pose_Goal x : %f, y : %f, Yaw : %f",  pose_goal.pose.position.x, pose_goal.pose.position.y, tf::getYaw(pose_goal.pose.orientation));
+      ROS_WARN("// Pose_Goal x : %f, y : %f, Yaw : %f",  pose_goal.pose.position.x, pose_goal.pose.position.y, tf::getYaw(pose_goal.pose.orientation) * 180/M_PI);
       ROS_WARN("=================");
 
       ROS_WARN("=================");
@@ -1563,7 +1471,37 @@ else
       ROS_WARN("// multiGoal x : %f, y : %f,  yaw : %f", multi_goal_x, multi_goal_y, multi_goal_yaw);
       ROS_WARN("=================");
 
-    start_time = ros::Time::now(); 
+      // ROS_WARN("=================");
+      // ROS_WARN("// service_flag_cnt : %d, service_flag : %d,  service_rot_cnt: %d", service_flag_cnt, service_flag, service_rot_cnt);
+      // ROS_WARN("=================");
+
+    start_time = ros::Time::now();
+
+
+    // if(service_flag_cnt > 3)
+    // {
+    //   service_flag = true; 
+    //   service_flag_cnt = 0;
+    // }
+    // if(service_flag)
+    // {
+    //   service_flag = false; 
+    //   service_rot_cnt++;
+    //   if(service_rot_cnt < 72)
+    //   {
+    //     cmd_vel.twist.linear.x = 0;
+    //     cmd_vel.twist.angular.z = 0.35;
+    //   }
+    //   if(service_rot_cnt >= 72 && goal_yaw >= 0.1)
+    //   {
+    //     cmd_vel.twist.linear.x = 0;
+    //     cmd_vel.twist.angular.z = 0.35; 
+    //   }
+    //   if(goal_yaw  <= 0.1)
+    //   {
+    //     service_rot_cnt = 0;
+    //   }      
+    // }
     #endif
 
  #if ROS_DEBUG_TEST_12 
@@ -1574,8 +1512,6 @@ else
 //            tf::getYaw(pose.pose.orientation));
 // }
 #endif 
-
-
 
   /*----------------------------------------------- Visualize -------------------------------------------- */
   

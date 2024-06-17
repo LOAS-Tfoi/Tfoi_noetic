@@ -12,11 +12,11 @@ TebLocalPlannerROS:
  max_samples: 500
  global_plan_overwrite_orientation: True
  allow_init_with_backwards_motion: False
- max_global_plan_lookahead_dist: 3.0
+ max_global_plan_lookahead_dist: 1.0 # 3.0 ""m까지의 경로를 고려, 개방된 환경 up, 장애물이 많은 환경 down(1.0~1.5)
  global_plan_viapoint_sep: 0.3 #0.3
  global_plan_prune_distance: 1
  exact_arc_length: False
- feasibility_check_no_poses: 3
+ feasibility_check_no_poses: 10 #3 값이 작은 경우 충분한 포즈를 확인하지 못해 경로의 안전성 보장x , 자주 끼면 값을 올려주는게 좋음 
  publish_feedback: False
  control_look_ahead_poses: 1
     
