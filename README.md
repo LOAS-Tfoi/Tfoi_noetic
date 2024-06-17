@@ -10,21 +10,21 @@
 
 ## 최신 업데이트
 
-- **Tfoi_noetic_fw94a**
+- **Tfoi_noetic_fw97b**
 - **Tfoi_noetic_md94a**
 
 ## TFOI 2020 업데이트 목록
 
-### Version : "fw94a"
+### Version : "fw97b"
 
 - 기본 자율 주행 정상 동작 (목표 골 도착, 장애물 인지 및 간접 회피)
-- 사선 경로의 골을 지정하였을 경우 헤딩의 어큐런시가 떨어져 목표골을 지나치는 경우가 종종 발생했는데 어큐런시를 높여 문제를 해결함(테스트 4시간 : 목표골 지나친 경우 없음)
+- 8시간 배터리 방전시까지 동작 테스트 (장소 :엘레베이터 앞, 경사로구간을 제외한 전시회 환경 구성)
 - 전방에 장애물이 있을시 멈춤(뒤로가지 않음)
 - 측면에 장애물이 있을시 어느정도 여유 공간이 있으면 회피해서 지나감
 
 #### 특이사항
 
-- 사선에 대한 어큐런시를 높였지만, 4시간 사선 경로 테스트시 20바퀴중 한번마다 특정경로에서 패스를 정하기 위해 헤딩을 좌우로 5번 정도 움직임(2차 어큐런시 보완코드로 해결할것임)
+- 8시간 배터리 방전 테스트시 초반 1~2바퀴째에만 팬 반침대 부분에서 MD가 끼는 경우 발생, FW도 아주가끔 1~2바퀴때 끼임 현상 발생
 
 ### 자율 주행 알고리즘 외 추가 기능
 
@@ -36,9 +36,9 @@
 ## 사용 방법
 
 1. `catkin_ws` 디렉토리에 존재하는 모든 폴더 및 파일을 삭제합니다.
-2. `catkin_ws에 /src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드합니다.
+2. `catkin_ws에 /src` 디렉터리를 새로 만들고 아래 명령을 실행하여 코드를 다운로드후 다운받은 repo 디렉토리의 이름을 src로 변경
 ```bash
-git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git
+git clone https://github.com/LOAS-Tfoi/Tfoi_noetic.git 
 ```
 3. /catkin_ws 디렉토리에서 아래 명령어를 수행합니다
 ```bash
@@ -62,6 +62,6 @@ roslaunch yhs_nav navigation_2d.launch
 /tfoi_temperature      Tfoi  배터리 온도             Type : std_msgs::Float32
 /tfoi_over_voltage     Tfoi  배터리 과전압 플래그      Type : std_msgs::Bool
 /tfoi_charge_flag      Tfoi  배터리 충전 플래그        Type : std_msgs::Bool
-/tfoi_distance         Tfoi  Tfoi 이동 거리          Type : std_msgs::Float32  (테스트 및 검증 필요)
+/tfoi_distance         Tfoi  Tfoi 이동 거리          Type : std_msgs::Float32  (테스트 필요)
 
 
