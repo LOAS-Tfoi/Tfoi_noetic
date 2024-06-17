@@ -18,7 +18,7 @@ DataPublisher::DataPublisher()
     bms_flag_fb_pub_charge_flag = nh.advertise<std_msgs::Bool>("/tfoi_charge_flag", 1);
     bms_flag_fb_pub_soc = nh.advertise<std_msgs::UInt8>("/tfoi_state_of_charge",1);
 
-    odom_sub = nh.subscribe("/tfoi_odom",1,&DataPublisher::OdomCallBack, this);
+    odom_sub = nh.subscribe("/odom",1,&DataPublisher::OdomCallBack, this);
     odom_pub_distance = nh.advertise<std_msgs::Float32>("/tfoi_distance", 1);
     cmd_vel_sub = nh.subscribe("/tfoi_smoother_cmd_vel", 1, &DataPublisher::CmdVelCallBack,this);
          
